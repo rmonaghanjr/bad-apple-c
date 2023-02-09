@@ -63,6 +63,7 @@ void read_bmp(BitMap* result, char* filename) {
 
     for (int i = 0; i < 40; i++)
     {
+        fseek(fp, (*result).pixel_array_offset, SEEK_CUR + sizeof(int));
         (*result).bmp_info_header[i] = (int) fgetc(fp);
     }
 
@@ -71,8 +72,6 @@ void read_bmp(BitMap* result, char* filename) {
 
     (*result).width = *width_ptr;
     (*result).height = *height_ptr;
-
-    printf("w:%d h:%d\n", (*result).width, (*result).height);
 
     (*result).bits_per_pixel = (*result).bmp_info_header[14];
     if ((*result).bits_per_pixel != 24)
@@ -93,19 +92,18 @@ void read_bmp(BitMap* result, char* filename) {
     fseek(fp, (*result).pixel_array_offset, SEEK_SET);
     for (int i = 0; i < (*result).pixel_array_size; i++)
     {
+        fseek(fp, (*result).pixel_array_offset, SEEK_CUR + sizeof(uint32_t));
         (*result).pixel_data[i] = (uint32_t) fgetc(fp);
     }
 }
 
-void pixel_at(BitMap *bmp, unsigned int** v, int x, int y) {
+void pixel_at(BitMap *bmp, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {
     if (x < (*bmp).width && y < (*bmp).height) {
         y = (*bmp).height - 1 - y;
 
-        (*v)[0] = (unsigned int)((*bmp).pixel_data[(*bmp).row_size * y + 3 * x + 2]);
-        (*v)[1] = (unsigned int)((*bmp).pixel_data[(*bmp).row_size * y + 3 * x + 1]);
-        (*v)[2] = (unsigned int)((*bmp).pixel_data[(*bmp).row_size * y + 3 * x + 0]);
-    } else {
-        printf("bad index!\n");
+        (*r) = (unsigned int)((*bmp).pixel_data[(*bmp).row_size * y + 3 * x + 2]);
+        (*g) = (unsigned int)((*bmp).pixel_data[(*bmp).row_size * y + 3 * x + 1]);
+        (*b) = (unsigned int)((*bmp).pixel_data[(*bmp).row_size * y + 3 * x + 0]);
     }
 }
 #endif

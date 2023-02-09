@@ -50,6 +50,7 @@ int get_frame_count(char* video_name) {
     strcat(result, video_name);
 
     frame_count = fast_atoi(exec(result));
+    free(result);
 
     return frame_count;
 }
@@ -64,8 +65,36 @@ int get_duration(char* video_name) {
     strcat(result, cmd_p2);
     
     duration = fast_atoi(exec(result));
+    free(result);
 
     return duration;
+}
+
+void render_frame(BitMap* bmp, int rows, int cols) {
+
+    for (int j = 0; j < bmp->height - 4*12; j += bmp->height / rows) {
+        int y = j;
+
+        for (int i = 0; i < bmp->width - 12*4; i += bmp->width / cols) {
+            int x = i;
+
+            unsigned int r;
+            unsigned int g;
+            unsigned int b;
+
+            pixel_at(bmp, &r, &g, &b, x, y);
+
+            int luminosity = (r + g + b) / 3;
+
+            if (luminosity < (255/2)) {
+                printf(" ");
+            } else {
+                printf("#");
+            }
+        }
+
+        printf("\n");
+    }
 }
 
 void get_frames(int frame_count, char* video_name) {
@@ -86,6 +115,7 @@ void get_frames(int frame_count, char* video_name) {
     strcat(result, cmd_p3);
 
     exec(result);
+    free(result);
 }
 
 int main(int argc, char** argv) {
@@ -119,6 +149,37 @@ int main(int argc, char** argv) {
 
     int col = window_size.ws_col;
     int row = window_size.ws_row;
+
+    for (int f = 0; f < frame_count; f++) {
+        BitMap bmp;
+
+        char* path = "./frames/frame_";
+        char* ext = ".bmp";
+
+        int frame_num_len = (int)(ceil(log10(f+2)) * sizeof(char));
+        char frame_num[frame_num_len];
+        sprintf(frame_num, "%d", f+1);
+
+        char* joined = (char*) malloc(5 + strlen(path) + strlen(ext));
+        strcpy(joined, path);
+
+        if (4 - frame_num_len == 3) {
+            strcat(joined, "000");
+        } else if (4 - frame_num_len == 2) {
+            strcat(joined, "00");
+        } else if (4 - frame_num_len == 1) {
+            strcat(joined, "0");
+        }
+
+        strcat(joined, frame_num);
+        strcat(joined, ext);
+
+        read_bmp(&bmp, joined);
+        
+        render_frame(&bmp, row, col);
+
+        free(joined);
+    }
 
     return 0;
 }
