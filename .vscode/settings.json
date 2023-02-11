@@ -85,6 +85,12 @@
         "cinttypes": "cpp",
         "memory.h": "c",
         "ioctl.h": "c",
-        "filesystem": "c"
+        "filesystem": "c",
+        "stdint.h": "c",
+        "render.h": "c",
+        "util.h": "c",
+        "bmp.h": "c",
+        "unistd.h": "c",
+        "process.h": "c"
     }
 }

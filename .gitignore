@@ -51,9 +51,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-bad_apple.mp4
-input.mp4
-bad-apple
+
 ffmpeg
 main
 frames/
+input/
+build/
