@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     char** frame_buffer = (char**) malloc(frame_count * (int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale));
 
     compile_video(&opts, frame_buffer);
-    render_video(&opts, frame_buffer);
+    //render_video(&opts, frame_buffer);
 
     free(frame_buffer);
 

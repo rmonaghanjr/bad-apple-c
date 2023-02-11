@@ -1,13 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "../include/render.h"
 #include "../include/bmp.h"
 
-const char* GREYSCALE = " .:-=+*#%@";
+const char* GREYSCALE = " .:-=+*%#@";
 
 void compile_video(RenderSettings* opts, char** output) {
-    for (int f = 0; f < (*opts).frame_count; f++) {
+    // (*opts).frame_count
+    int max_frame_width = 0;
+    for (int f = 0; f < opts->frame_count; f++) {
         Frame frame;
         
         char* path = "frame_";
@@ -33,26 +36,31 @@ void compile_video(RenderSettings* opts, char** output) {
         strcat(joined, ext);
 
         int did_set = read_frame(&frame, joined);
-        build_frame(&frame, opts, output);
-        printf("\rcompiling frame: %d", f);
-        fflush(stdout);
+        char* frame_str  = (char*) malloc((opts->win_width + 1) * opts->win_height);
+        int rendered_frame_width = build_frame(&frame, opts, frame_str);
 
-        if (!did_set) {
-            free(frame.pixel_data);
-        } else {
-            break;
+        if (rendered_frame_width > max_frame_width) {
+            max_frame_width = rendered_frame_width;
         }
 
+        printf("\rcompiled frame: %d", f);
+        fflush(stdout);
+
+        // TODO: Output concatenation
+
+        free(frame_str);
+        free(frame.pixel_data);
         free(joined);
     }
 }
 
-void build_frame(Frame* frame, RenderSettings* opts, char* output) {
-    system("clear");
+int build_frame(Frame* frame, RenderSettings* opts, char* output) {
+    int p_j = 0;
+    int p_i = 0;
     
-    for (int j = 0; j < frame->height; j += frame->height / (opts->win_height/opts->scale)) {
-        int y = j;
+    strcpy(output, "\0");
 
+    for (int j = 0; j < frame->height; j += frame->height / (opts->win_height/opts->scale)) {
         for (int i = 0; i < frame->width; i += frame->width / (opts->win_width/opts->scale)) {
             int avg_luminance = 0;
 
@@ -80,15 +88,25 @@ void build_frame(Frame* frame, RenderSettings* opts, char* output) {
             }
             avg_luminance /= 36;
             
-            printf("%c", GREYSCALE[(int) (avg_luminance/11)]);
+            char pixel[2];
+            pixel[0] = GREYSCALE[(int) (avg_luminance/11)];
+            pixel[1] = '\0'; 
+            strcat(output, pixel);
+
+            p_i++;
         }
 
-        printf("\n");
+        strcat(output, "\n");
+        p_j++;
     }
+
+    return p_i;
 }
 
 void render_video(RenderSettings* opts, char** frame_buffer) {
     for (int i = 0; i < (*opts).frame_count; i++) {
-        printf("%s\n", frame_buffer[i]);
+        system("clear");
+        printf("%s\n", frame_buffer);
+        printf("%s\n", frame_buffer[0]);
     }
 }

@@ -13,7 +13,7 @@ typedef struct {
 } RenderSettings;
 
 void compile_video(RenderSettings* opts, char** output);
-void build_frame(Frame* frame, RenderSettings* opts, char* output);
+int build_frame(Frame* frame, RenderSettings* opts, char* output);
 void render_video(RenderSettings* opts, char** frame_buffer);
 
 #endif
