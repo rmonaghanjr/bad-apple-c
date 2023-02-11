@@ -38,6 +38,11 @@ int main(int argc, char** argv) {
     int col = window_size.ws_col;
     int row = window_size.ws_row;
 
+    if (col == 0) {
+        col = 250;
+        row = 50;
+    }
+
     RenderSettings opts;
     opts.fps = (float) frame_count / duration;
     opts.frame_count = frame_count - 1;
@@ -60,7 +65,6 @@ int main(int argc, char** argv) {
     for (int i = 0; i < frame_count; i++) {
         free(frame_buffer[i]);
     }
-
     free(frame_buffer);
 
     printf("deallocated!\n");

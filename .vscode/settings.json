@@ -91,6 +91,10 @@
         "util.h": "c",
         "bmp.h": "c",
         "unistd.h": "c",
-        "process.h": "c"
+        "process.h": "c",
+        "__tree": "c",
+        "map": "c",
+        "set": "c",
+        "unordered_set": "c"
     }
 }

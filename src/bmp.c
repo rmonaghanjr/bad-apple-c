@@ -72,7 +72,7 @@ int read_frame(Frame* result, char* filename) {
         (*result).pixel_data[i] = (uint32_t) fgetc(fp);
     }
 
-    fclose(fp); // dumbass lmao
+    fclose(fp);
 
     return 1;
 }
@@ -80,7 +80,7 @@ int read_frame(Frame* result, char* filename) {
 void pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {
     if (x < (*frame).width && y < (*frame).height) {
         y = (*frame).height - 1 - y;
-
+        
         (*r) = (unsigned int)((*frame).pixel_data[(*frame).row_size * y + 3 * x + 2]);
         (*g) = (unsigned int)((*frame).pixel_data[(*frame).row_size * y + 3 * x + 1]);
         (*b) = (unsigned int)((*frame).pixel_data[(*frame).row_size * y + 3 * x + 0]);
