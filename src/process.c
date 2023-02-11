@@ -18,7 +18,7 @@ int get_frame_count(char* video_name) {
     frame_count = fast_atoi(exec(result));
     free(result);
 
-    return frame_count - 1; // becuase idk 
+    return frame_count; // becuase idk 
 }
 
 int get_duration(char* video_name) {

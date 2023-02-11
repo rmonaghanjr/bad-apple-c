@@ -40,18 +40,30 @@ int main(int argc, char** argv) {
 
     RenderSettings opts;
     opts.fps = (float) frame_count / duration;
-    opts.frame_count = frame_count;
+    opts.frame_count = frame_count - 1;
     opts.frames_folder = "./frames/";
     opts.scale = 2;
     opts.win_width = col;
     opts.win_height = row;
 
-    char** frame_buffer = (char**) malloc(frame_count * (int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale));
+    printf("allocating frame space...\n");
+    char** frame_buffer = (char**) malloc(frame_count * sizeof(char*));
+    for (int i = 0; i < frame_count; i++) {
+        frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale));
+    }
+    printf("allocated!\nbuilding frames...\n");
 
     compile_video(&opts, frame_buffer);
-    //render_video(&opts, frame_buffer);
+    render_video(&opts, frame_buffer);
+
+    printf("deallocating frame space...\n");
+    for (int i = 0; i < frame_count; i++) {
+        free(frame_buffer[i]);
+    }
 
     free(frame_buffer);
+
+    printf("deallocated!\n");
 
     return 0;
 }

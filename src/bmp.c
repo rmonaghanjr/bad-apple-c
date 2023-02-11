@@ -11,7 +11,7 @@ int read_frame(Frame* result, char* filename) {
 
     if (!fp) {
         printf("cannot open file! %s\n", filename);
-        return 1;
+        return 0;
     }
 
     fseek(fp, 0, SEEK_END);
@@ -28,7 +28,7 @@ int read_frame(Frame* result, char* filename) {
 
     if ((*result).frame_file_header[0] != 'B' || (*result).frame_file_header[1] != 'M') {
         printf("invalid header file!\n");
-        return 1;
+        return 0;
     }
 
     unsigned int *array_offset_ptr = (unsigned int *)((*result).frame_file_header + 10);
@@ -58,7 +58,7 @@ int read_frame(Frame* result, char* filename) {
     int compressionMethod = (*result).frame_info_header[16];
     if (compressionMethod != 0) {
         printf("unhandled compression type!\n");
-        return 1;
+        return 0;
     }
 
     (*result).row_size = (int) (floor(((*result).bits_per_pixel * (*result).width + 31.) / 32)) * 4;
@@ -74,7 +74,7 @@ int read_frame(Frame* result, char* filename) {
 
     fclose(fp); // dumbass lmao
 
-    return 0;
+    return 1;
 }
 
 void pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {

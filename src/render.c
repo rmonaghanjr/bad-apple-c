@@ -8,7 +8,7 @@
 const char* GREYSCALE = " .:-=+*%#@";
 
 void compile_video(RenderSettings* opts, char** output) {
-    // (*opts).frame_count
+
     int max_frame_width = 0;
     for (int f = 0; f < opts->frame_count; f++) {
         Frame frame;
@@ -43,13 +43,15 @@ void compile_video(RenderSettings* opts, char** output) {
             max_frame_width = rendered_frame_width;
         }
 
-        printf("\rcompiled frame: %d", f);
+        printf("\rcompiled frame: %d", f + 1);
         fflush(stdout);
 
-        // TODO: Output concatenation
+        strcpy(output[f], frame_str);
 
         free(frame_str);
-        free(frame.pixel_data);
+        if (did_set) {
+            free(frame.pixel_data);
+        }
         free(joined);
     }
 }
@@ -104,9 +106,8 @@ int build_frame(Frame* frame, RenderSettings* opts, char* output) {
 }
 
 void render_video(RenderSettings* opts, char** frame_buffer) {
-    for (int i = 0; i < (*opts).frame_count; i++) {
+    for (int i = 0; i < opts->frame_count; i++) {
         system("clear");
-        printf("%s\n", frame_buffer);
-        printf("%s\n", frame_buffer[0]);
+        printf("%s", frame_buffer[i]);
     }
 }
