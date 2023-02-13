@@ -77,12 +77,15 @@ int read_frame(Frame* result, char* filename) {
     return 1;
 }
 
-void pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {
+int pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {
     if (x < (*frame).width && y < (*frame).height) {
         y = (*frame).height - 1 - y;
         
         (*r) = (unsigned int)((*frame).pixel_data[(*frame).row_size * y + 3 * x + 2]);
         (*g) = (unsigned int)((*frame).pixel_data[(*frame).row_size * y + 3 * x + 1]);
         (*b) = (unsigned int)((*frame).pixel_data[(*frame).row_size * y + 3 * x + 0]);
+        return 1;
+    } else {
+        return 0;
     }
 }

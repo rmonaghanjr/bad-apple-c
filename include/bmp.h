@@ -26,6 +26,6 @@ typedef struct {
 } Frame;
 
 int read_frame(Frame* result, char* filename);
-void pixel_at(Frame* frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y);
+int pixel_at(Frame* frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y);
 
 #endif
