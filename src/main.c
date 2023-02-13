@@ -12,8 +12,6 @@
 #include "../include/process.h"
 
 int main(int argc, char** argv) {
-    int start_frame = 0;
-
     int frame_count = get_frame_count(argv[1]);
     int duration = get_duration(argv[1]);
 

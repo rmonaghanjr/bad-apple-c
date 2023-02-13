@@ -28,14 +28,12 @@ char* exec(char* cmd) {
     FILE* stream;
 
     stream = popen(cmd, "r");
-    if (stream) {
-        while (!feof(stream)) {
-            if (fgets(buffer, BUFFER_SIZE, stream) != NULL) {
-                data = buffer;
-            }
+    while (!feof(stream)) {
+        if (fgets(buffer, BUFFER_SIZE, stream) != NULL) {
+            data = buffer;
         }
-        pclose(stream);
     }
+    pclose(stream);
 
     return data;
 }

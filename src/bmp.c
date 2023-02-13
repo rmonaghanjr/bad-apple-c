@@ -14,14 +14,8 @@ int read_frame(Frame* result, char* filename) {
         return 0;
     }
 
-    fseek(fp, 0, SEEK_END);
-
-    int size = ftell(fp);
-    char buff[size];
-
     fseek(fp, 0, SEEK_SET);
 
-    unsigned char a;
     for (int i = 0; i < 14; i++) {
         (*result).frame_file_header[i] = fgetc(fp);
     }

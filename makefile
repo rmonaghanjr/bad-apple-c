@@ -1,7 +1,7 @@
 CFILES=src/main.c src/bmp.c src/process.c src/render.c src/util.c
-COMPILER=clang
+COMPILER=gcc
 CDEBUG=-g
-CFLAGS=
+CFLAGS=-Wall
 OUT=bad-apple-c
 INPUT=input.mp4
 

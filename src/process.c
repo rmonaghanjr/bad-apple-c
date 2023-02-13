@@ -42,7 +42,7 @@ void get_frames(int frame_count, char* video_name) {
     if (frames_dir) {
         closedir(frames_dir);
     } else if (ENOENT == errno) {
-        char* r = exec("mkdir frames");
+        exec("mkdir frames");
 
         char duration[(int)((ceil(log10(frame_count))+1)*sizeof(char))];
         sprintf(duration, "%f", (double) frame_count / get_duration(video_name));
@@ -57,8 +57,9 @@ void get_frames(int frame_count, char* video_name) {
         strcat(result, cmd_p2);
         strcat(result, duration);
         strcat(result, cmd_p3);
+
+        exec(result);
         
-        char* frame_creation_output = exec(result);
         free(result);
 
     } else {
