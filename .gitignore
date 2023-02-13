@@ -57,3 +57,4 @@ main
 frames/
 input/
 build/
+.DS_Store

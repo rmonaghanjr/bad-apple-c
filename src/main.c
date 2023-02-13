@@ -38,11 +38,6 @@ int main(int argc, char** argv) {
     int col = window_size.ws_col;
     int row = window_size.ws_row;
 
-    if (col == 0) {
-        col = 250;
-        row = 50;
-    }
-
     RenderSettings opts;
     opts.fps = (float) frame_count / duration;
     opts.frame_count = frame_count - 1;
@@ -51,9 +46,11 @@ int main(int argc, char** argv) {
     opts.win_width = col;
     opts.win_height = row;
 
-    printf("allocating frame space...\n");
     char** frame_buffer = (char**) malloc(frame_count * sizeof(char*));
     for (int i = 0; i < frame_count; i++) {
+        printf("\rallocating block %d...", i);
+        fflush(stdout);
+        
         frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale));
     }
     printf("allocated!\nbuilding frames...\n");
@@ -61,8 +58,10 @@ int main(int argc, char** argv) {
     compile_video(&opts, frame_buffer);
     render_video(&opts, frame_buffer);
 
-    printf("deallocating frame space...\n");
     for (int i = 0; i < frame_count; i++) {
+        printf("\rdeallocating block %d...", i);
+        fflush(stdout);
+
         free(frame_buffer[i]);
     }
     free(frame_buffer);

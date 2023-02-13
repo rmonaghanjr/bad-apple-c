@@ -49,7 +49,7 @@ void get_frames(int frame_count, char* video_name) {
 
         char* cmd_p1 = "ffmpeg -i ";
         char* cmd_p2 = " -filter:v fps=fps=";
-        char* cmd_p3 = " ./frames/frame_%04d.bmp &>/dev/null";
+        char* cmd_p3 = " ./frames/frame_%06d.bmp &>/dev/null";
         char* result = (char*) malloc(strlen(cmd_p1) + strlen(cmd_p2) + strlen(cmd_p3) + strlen(video_name) + 1);
 
         strcpy(result, cmd_p1);
@@ -57,7 +57,7 @@ void get_frames(int frame_count, char* video_name) {
         strcat(result, cmd_p2);
         strcat(result, duration);
         strcat(result, cmd_p3);
-
+        
         char* frame_creation_output = exec(result);
         free(result);
 
