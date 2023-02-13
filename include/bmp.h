@@ -27,5 +27,6 @@ typedef struct {
 
 int read_frame(Frame* result, char* filename);
 int pixel_at(Frame* frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y);
+int sample_region(Frame* frame, int w, int h, int s_x, int s_y);
 
 #endif

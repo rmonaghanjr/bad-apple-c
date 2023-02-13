@@ -89,3 +89,25 @@ int pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, in
         return 0;
     }
 }
+
+int sample_region(Frame* frame, int w, int h, int s_x, int s_y) {
+    int avg_luminance = 0;
+    int s_samples = 0;
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            unsigned int r;
+            unsigned int g;
+            unsigned int b;
+
+            int did_grab_pixel = pixel_at(frame, &r, &g, &b, s_x+x, s_y+y);
+
+            if (did_grab_pixel) {
+                avg_luminance += (r + g + b) / 3;
+                s_samples++;
+            }
+        }
+    }
+
+    return avg_luminance / s_samples;
+}

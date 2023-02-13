@@ -53,7 +53,7 @@ void compile_video(RenderSettings* opts, char** output) {
             free(frame.pixel_data);
         }
         free(joined);
-        memset(frame_str, 0, (opts->win_width + 1) * opts->win_height);
+        memset(frame_str, 0, (opts->win_width + 1) * opts->win_height); // memset() region of mem instead of malloc()....free() repeatedly, which seems to cause errors...
     }
 
     free(frame_str);
@@ -71,25 +71,9 @@ int build_frame(Frame* frame, RenderSettings* opts, char* output) {
 
     for (int j = 0; j < frame->height; j += m_y) {
         for (int i = 0; i < frame->width; i += m_x) {
-            int avg_luminance = 0;
-            int s_samples = 0;
+            int luminance = sample_region(frame, r_x, r_y, i, j);
 
-            for (int y = 0; y < r_y; y++) {
-                for (int x = 0; x < r_x; x++) {
-                    unsigned int r;
-                    unsigned int g;
-                    unsigned int b;
-
-                    int did_grab_pixel = pixel_at(frame, &r, &g, &b, i+x, j+y);
-
-                    if (did_grab_pixel) {
-                        avg_luminance += (r + g + b) / 3;
-                        s_samples++;
-                    }
-                }
-            }
-
-            int gscale_val = (avg_luminance / s_samples) / 10;
+            int gscale_val = luminance / 10;
             char pixel[2];
             pixel[0] = GREYSCALE[gscale_val];
             pixel[1] = 0;
