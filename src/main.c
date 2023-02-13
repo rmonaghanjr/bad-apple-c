@@ -14,7 +14,7 @@
 int main(int argc, char** argv) {
     int frame_count = get_frame_count(argv[1]);
     int duration = get_duration(argv[1]);
-
+    
     printf("frame_count  = %d\n", frame_count);
     printf("duration     = %d\n", duration);
     printf("fps          = %f\n", (double) frame_count / duration);
@@ -36,6 +36,8 @@ int main(int argc, char** argv) {
     int col = window_size.ws_col;
     int row = window_size.ws_row;
 
+    printf("win_size     = %dx%d\n", col, row);
+
     RenderSettings opts;
     opts.fps = (float) frame_count / duration;
     opts.frame_count = frame_count - 1;
@@ -43,13 +45,19 @@ int main(int argc, char** argv) {
     opts.scale = 2;
     opts.win_width = col;
     opts.win_height = row;
+    
+    if (argc == 3) {
+        opts.available_cores = fast_atoi(argv[2]);
+    } else {
+        opts.available_cores = 1;
+    }
 
     char** frame_buffer = (char**) malloc(frame_count * sizeof(char*));
     for (int i = 0; i < frame_count; i++) {
         printf("\rallocating block %d...", i);
         fflush(stdout);
         
-        frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale));
+        frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale));
     }
     printf("allocated!\nbuilding frames...\n");
 

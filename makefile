@@ -11,6 +11,10 @@ all:
 debug:
 	$(COMPILER) $(CFLAGS) $(CDEBUG) $(CFILES) -o ./build/$(OUT)
 
+run:
+	make
+	./build/$(OUT) ./input/$(INPUT)
+
 clean:
 	rm -rf ./frames
 	rm ./build/$(OUT)
