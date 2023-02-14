@@ -1,78 +1,67 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <time.h>
-#include <stdint.h>
-#include <math.h>
+#include <string.h>
 
-#include "../include/bmp.h"
 #include "../include/render.h"
 #include "../include/util.h"
-#include "../include/process.h"
 
 int main(int argc, char** argv) {
-    int frame_count = get_frame_count(argv[1]);
-    int duration = get_duration(argv[1]);
+    char* usage_p1 = "Usage: ";
+    char* usage_p2 = " <input file (.mp4)> [--verbose, --cores=<int>, --scale=<int>]";
+    char* usage_msg = (char*) malloc(strlen(usage_p1) + strlen(usage_p2) + strlen(argv[0]) + 1);
+    strcpy(usage_msg, usage_p1);
+    strcat(usage_msg, argv[0]);
+    strcat(usage_msg, usage_p2);
 
-    printf("frame_count  = %d\n", frame_count);
-    printf("duration     = %d\n", duration);
-    printf("fps          = %f\n", (double) frame_count / duration);
+    if (argc == 1) {
+        printf("%s\n", usage_msg);
+        free(usage_msg);
+        return 0;
+    }
 
-    clock_t start, end;
-    double cpu_time;
+    VIDEO_SETTINGS video;
+    video.filename = argv[1];
+    video.verbose = 0;
+    video.available_cores = 1;
+    video.scale = 2;
+    video.frames_folder="./frames/";
 
-    start = clock();
-    get_frames(frame_count, argv[1]);
-    end = clock();
+    for (int i = 1; i < argc; i++) {
+        if (i == 1 && argv[i][1] == '-') {
+            printf("%s\n", usage_msg);
+            free(usage_msg);
+            return 0;
+        }
 
-    cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+        if (strcmp(argv[i], "--verbose") == 0) {
+            video.verbose = 1;
+            continue;
+        }
 
-    printf("frame_p_time = %fs\n", cpu_time * 10000);
+        char* comparator = (char*) malloc(16);
+        memset(comparator, 0, 16);
 
-    struct winsize window_size;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &window_size);
+        for (int j = 0; j < strlen(argv[i]); j++) {
+            if (strcmp(comparator, "--scale") == 0) {
+                char* val = get_opt_value(argv[i]);
+                video.scale = fast_atoi(val);
+                free(val);
+                break;
+            } else if (strcmp(comparator, "--cores") == 0) {
+                char* val = get_opt_value(argv[i]);
+                video.available_cores = fast_atoi(val);
+                free(val);
+                break;
+            }
 
-    int col = window_size.ws_col;
-    int row = window_size.ws_row;
-
-    printf("win_size     = %dx%d\n", col, row);
-
-    RENDER_SETTINGS opts;
-    opts.fps = (float) frame_count / duration;
-    opts.frame_count = frame_count - 1;
-    opts.frames_folder = "./frames/";
-    opts.scale = 2;
-    opts.win_width = col;
-    opts.win_height = row;
+            comparator[j] = argv[i][j];
+        }
+        free(comparator);
+    }
     
-    if (argc == 3) {
-        opts.available_cores = fast_atoi(argv[2]);
-    } else {
-        opts.available_cores = 1;
-    }
+    play_video(&video);
 
-    char** frame_buffer = (char**) malloc(frame_count * sizeof(char*));
-    for (int i = 0; i < frame_count; i++) {
-        printf("\rallocating block %d...", i);
-        fflush(stdout);
-        
-        frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale));
-    }
-    printf("allocated!\nbuilding frames...\n");
-
-    distribute_sectors(&opts, frame_buffer);
-    render_video(&opts, frame_buffer);
-
-    for (int i = 0; i < frame_count; i++) {
-        printf("\rdeallocating block %d...", i);
-        fflush(stdout);
-
-        free(frame_buffer[i]);
-    }
-    free(frame_buffer);
-
-    printf("deallocated!\n");
+    free(usage_msg);
 
     return 0;
 }

@@ -20,6 +20,15 @@ typedef struct {
     int end;
 } F_BUILDER_ARGS;
 
+typedef struct {
+    char* filename;
+    char* frames_folder;
+    int available_cores;
+    int verbose;
+    int scale;
+} VIDEO_SETTINGS;
+
+void play_video(VIDEO_SETTINGS* video);
 void distribute_sectors(RENDER_SETTINGS* opts, char** frame_buffer);
 void* compile_sector(void* args);
 int build_frame(FRAME* frame, RENDER_SETTINGS* opts, char* output);

@@ -8,4 +8,4 @@ Note: ffmpeg is required for this project!
 
 Make sure there is a build directory in the current folder! After it exists, you can use `make` to compile the program! 
 
-Usage: `./<program name> <input file (.mp4)> <# of cores>`
+Usage: `./<program name>` to print usage message.

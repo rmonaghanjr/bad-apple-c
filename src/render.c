@@ -6,12 +6,88 @@
 #include <memory.h>
 #include <math.h>
 #include <pthread.h>
+#include <sys/ioctl.h>
 
 #include "../include/render.h"
 #include "../include/bmp.h"
 #include "../include/util.h"
+#include "../include/process.h"
 
 const char* GREYSCALE = " .:-=+*#%@";
+
+void play_video(VIDEO_SETTINGS* video) {
+    int frame_count = get_frame_count((*video).filename);
+    int duration = get_duration((*video).filename);
+
+    if ((*video).verbose) {
+        printf("frame_count  = %d\n", frame_count);
+        printf("duration     = %d\n", duration);
+        printf("fps          = %f\n", (double) frame_count / duration);
+    }
+
+    clock_t start, end;
+    double cpu_time;
+    if ((*video).verbose) {
+        start = clock();
+    }
+
+    get_frames(frame_count, (*video).filename);
+
+    if ((*video).verbose) {
+        end = clock();
+        cpu_time = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("frame_p_time = %fs\n", cpu_time * 10000);
+    }
+
+    struct winsize window_size;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &window_size);
+
+    int col = window_size.ws_col;
+    int row = window_size.ws_row;
+
+    if ((*video).verbose) {
+        printf("win_size     = %dx%d\n", col, row);
+    }
+
+    RENDER_SETTINGS opts;
+    opts.fps = (float) frame_count / duration;
+    opts.frame_count = frame_count - 1;
+    opts.frames_folder = (*video).frames_folder;
+    opts.scale = (*video).scale;
+    opts.win_width = col;
+    opts.win_height = row;
+    opts.available_cores = (*video).available_cores;
+
+    char** frame_buffer = (char**) malloc(frame_count * sizeof(char*));
+    for (int i = 0; i < frame_count; i++) {
+        if ((*video).verbose) {
+            printf("\rallocating block %d...", i);
+            fflush(stdout);
+        }
+        
+        frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale));
+    }
+    if ((*video).verbose) {
+        printf("allocated!\nbuilding frames...\n");
+    }
+
+    distribute_sectors(&opts, frame_buffer);
+    render_video(&opts, frame_buffer);
+
+    for (int i = 0; i < frame_count; i++) {
+        if ((*video).verbose) {
+            printf("\rdeallocating block %d...", i);
+            fflush(stdout);
+        }
+
+        free(frame_buffer[i]);
+    }
+    free(frame_buffer);
+
+    if ((*video).verbose) {
+        printf("deallocated!\n");
+    }
+}
 
 void* compile_sector(void* args) {
 
@@ -53,8 +129,6 @@ void* compile_sector(void* args) {
             max_frame_width = rendered_frame_width;
         }
 
-        // printf("compiled frame: %d\n", f + 1);
-
         strcat(output[f], "\0");
         
         if (did_set) {
@@ -94,7 +168,6 @@ void distribute_sectors(RENDER_SETTINGS* opts, char** frame_buffer) {
     int* exit_codes = (int*) malloc(sizeof(int) * (*opts).available_cores);
     for (int i = 0; i < (*opts).available_cores; i++) {
         pthread_join(fb_threads[i], (void**) &exit_codes[i]);
-        printf("code for thread %d: %d", i, exit_codes[i]);
     }
 
     free(exit_codes);
