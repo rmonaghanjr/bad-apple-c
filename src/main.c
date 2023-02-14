@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     opts.fps = (float) frame_count / duration;
     opts.frame_count = frame_count - 1;
     opts.frames_folder = "./frames/";
-    opts.scale = 1;
+    opts.scale = 2;
     opts.win_width = col;
     opts.win_height = row;
     
