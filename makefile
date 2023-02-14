@@ -3,7 +3,7 @@ COMPILER=gcc
 CDEBUG=-g
 CFLAGS=-Wall
 OUT=bad-apple-c
-INPUT=input.mp4
+INPUT=input.mp4 8
 
 all:
 	$(COMPILER) $(CFLAGS) $(CFILES) -o ./build/$(OUT)

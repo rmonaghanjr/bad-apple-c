@@ -4,6 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <memory.h>
+#include <math.h>
+#include <pthread.h>
 
 #include "../include/render.h"
 #include "../include/bmp.h"
@@ -11,15 +13,22 @@
 
 const char* GREYSCALE = " .:-=+*#%@";
 
-void compile_video(RenderSettings* opts, char** output) {
+void* compile_sector(void* args) {
+
+    F_BUILDER_ARGS* dr_args = (F_BUILDER_ARGS*) args;
+
+    int start = dr_args->start;
+    int end = dr_args->end;
+    RENDER_SETTINGS* opts = dr_args->opts;
+    char** output = dr_args->frame_buffer;
 
     int max_frame_width = 0;
     char* path = "frame_";
     char* ext = ".bmp";
     char* joined = (char*) malloc(5 + strlen(path) + strlen(ext));
 
-    for (int f = 0; f < opts->frame_count; f++) {
-        Frame frame;
+    for (int f = start; f < end; f++) {
+        FRAME frame;
 
         int frame_num_len = (int)(ceil(log10(f+2)) * sizeof(char));
         char frame_num[frame_num_len];
@@ -44,8 +53,7 @@ void compile_video(RenderSettings* opts, char** output) {
             max_frame_width = rendered_frame_width;
         }
 
-        printf("\rcompiled frame: %d", f + 1);
-        fflush(stdout);
+        // printf("compiled frame: %d\n", f + 1);
 
         strcat(output[f], "\0");
         
@@ -56,13 +64,44 @@ void compile_video(RenderSettings* opts, char** output) {
     }
 
     free(joined);
+
+    pthread_exit((void*) 0);
 }
 
-void build_sector(RenderSettings* opts, int start, int end, char** frame_buffer) {
+void distribute_sectors(RENDER_SETTINGS* opts, char** frame_buffer) {
+    int chunk_size = floor((*opts).frame_count / (*opts).available_cores);
+    int remaining_frames = (*opts).frame_count - (chunk_size * (*opts).available_cores); // we need to add these frames to the last thread in order to have continuity
 
+    int p_assignment = 0;
+    F_BUILDER_ARGS* args = (F_BUILDER_ARGS*) malloc(sizeof(F_BUILDER_ARGS) * (*opts).available_cores);
+    pthread_t fb_threads[(*opts).available_cores];
+
+    for (int i = 0; i < (*opts).available_cores; i++) {
+        args[i].opts = opts;
+        args[i].frame_buffer = frame_buffer;
+        args[i].start = p_assignment;
+        args[i].end = p_assignment + chunk_size;
+
+        if (i + 1 == (*opts).available_cores) {
+            args[i].end += remaining_frames;
+        }
+
+        pthread_create(&fb_threads[i], NULL, &compile_sector, (void*) &args[i]);
+
+        p_assignment = args[i].end;
+    }
+
+    int* exit_codes = (int*) malloc(sizeof(int) * (*opts).available_cores);
+    for (int i = 0; i < (*opts).available_cores; i++) {
+        pthread_join(fb_threads[i], (void**) &exit_codes[i]);
+        printf("code for thread %d: %d", i, exit_codes[i]);
+    }
+
+    free(exit_codes);
+    free(args);
 }
 
-int build_frame(Frame* frame, RenderSettings* opts, char* output) {
+int build_frame(FRAME* frame, RENDER_SETTINGS* opts, char* output) {
     int p_i = 0;
     int r_x = frame->width / opts->win_width;
     int r_y = frame->height / opts->win_height;
@@ -96,7 +135,7 @@ int build_frame(Frame* frame, RenderSettings* opts, char* output) {
     return p_i;
 }
 
-void render_video(RenderSettings* opts, char** frame_buffer) {
+void render_video(RENDER_SETTINGS* opts, char** frame_buffer) {
     clock_t start, end;
     start = clock();
     system("clear");

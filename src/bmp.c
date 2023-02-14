@@ -5,7 +5,7 @@
 
 #include "../include/bmp.h"
 
-int read_frame(Frame* result, char* filename) {
+int read_frame(FRAME* result, char* filename) {
     FILE* fp;
     fp = fopen(filename, "r");
 
@@ -71,7 +71,7 @@ int read_frame(Frame* result, char* filename) {
     return 1;
 }
 
-int pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {
+int pixel_at(FRAME *frame, unsigned int* r, unsigned int* g, unsigned int* b, int x, int y) {
     if (x < (*frame).width && y < (*frame).height) {
         y = (*frame).height - 1 - y;
         
@@ -84,7 +84,7 @@ int pixel_at(Frame *frame, unsigned int* r, unsigned int* g, unsigned int* b, in
     }
 }
 
-int sample_region(Frame* frame, int w, int h, int s_x, int s_y) {
+int sample_region(FRAME* frame, int w, int h, int s_x, int s_y) {
     int avg_luminance = 0;
     int s_samples = 0;
 

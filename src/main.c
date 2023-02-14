@@ -14,7 +14,7 @@
 int main(int argc, char** argv) {
     int frame_count = get_frame_count(argv[1]);
     int duration = get_duration(argv[1]);
-    
+
     printf("frame_count  = %d\n", frame_count);
     printf("duration     = %d\n", duration);
     printf("fps          = %f\n", (double) frame_count / duration);
@@ -38,11 +38,11 @@ int main(int argc, char** argv) {
 
     printf("win_size     = %dx%d\n", col, row);
 
-    RenderSettings opts;
+    RENDER_SETTINGS opts;
     opts.fps = (float) frame_count / duration;
     opts.frame_count = frame_count - 1;
     opts.frames_folder = "./frames/";
-    opts.scale = 2;
+    opts.scale = 1;
     opts.win_width = col;
     opts.win_height = row;
     
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     }
     printf("allocated!\nbuilding frames...\n");
 
-    compile_video(&opts, frame_buffer);
+    distribute_sectors(&opts, frame_buffer);
     render_video(&opts, frame_buffer);
 
     for (int i = 0; i < frame_count; i++) {

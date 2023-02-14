@@ -11,11 +11,18 @@ typedef struct {
     char* frames_folder;
     float fps;
     int available_cores;
-} RenderSettings;
+} RENDER_SETTINGS;
 
-void compile_video(RenderSettings* opts, char** output);
-void build_sector(RenderSettings* opts, int start, int end, char** frame_buffer);
-int build_frame(Frame* frame, RenderSettings* opts, char* output);
-void render_video(RenderSettings* opts, char** frame_buffer);
+typedef struct {
+    RENDER_SETTINGS* opts;
+    char** frame_buffer;
+    int start;
+    int end;
+} F_BUILDER_ARGS;
+
+void distribute_sectors(RENDER_SETTINGS* opts, char** frame_buffer);
+void* compile_sector(void* args);
+int build_frame(FRAME* frame, RENDER_SETTINGS* opts, char* output);
+void render_video(RENDER_SETTINGS* opts, char** frame_buffer);
 
 #endif
