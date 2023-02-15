@@ -65,12 +65,11 @@ void play_video(VIDEO_SETTINGS* video) {
             fflush(stdout);
         }
         
-        frame_buffer[i] = (char*) malloc((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale));
+        frame_buffer[i] = (char*) malloc(8*((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale)));
     }
     if ((*video).verbose) {
         printf("allocated!\nbuilding frames...\n");
     }
-
     distribute_sectors(&opts, frame_buffer);
     render_video(&opts, frame_buffer);
 
