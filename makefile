@@ -2,7 +2,7 @@ CFILES=src/main.c src/bmp.c src/process.c src/render.c src/util.c
 COMPILER=gcc
 CDEBUG=-g
 CFLAGS=-Wall
-OUT=bad-apple-c
+OUT=cmd-play
 INPUT=input.mp4 8
 
 all:
