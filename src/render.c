@@ -65,7 +65,7 @@ void play_video(VIDEO_SETTINGS* video) {
             fflush(stdout);
         }
         
-        frame_buffer[i] = (char*) malloc(8*((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale)));
+        frame_buffer[i] = (char*) malloc(((int) (((opts.win_height/opts.scale) * (opts.win_width/opts.scale)) + opts.win_height/opts.scale + opts.win_width/opts.scale)) * 2);
     }
     if ((*video).verbose) {
         printf("allocated!\nbuilding frames...\n");
@@ -119,7 +119,7 @@ void* compile_sector(void* args) {
         strcat(joined, frame_num);
         strcat(joined, ext);
         
-        memset(output[f], 0, (int) (((opts->win_height/opts->scale) * (opts->win_width/opts->scale)) + opts->win_height/opts->scale + opts->win_width/opts->scale));
+        memset(output[f], 0, ((int) (((opts->win_height/opts->scale) * (opts->win_width/opts->scale)) + opts->win_height/opts->scale + opts->win_width/opts->scale)) * 2);
 
         int did_set = read_frame(&frame, joined);
         int rendered_frame_width = build_frame(&frame, opts, output[f]);
@@ -211,15 +211,20 @@ void render_video(RENDER_SETTINGS* opts, char** frame_buffer) {
     clock_t start, end;
     start = clock();
     system("clear");
-    printf("%s", frame_buffer[0]);
+    write(1, *(frame_buffer), strlen(*(frame_buffer)));
     end = clock();
 
-    double cpu_time = (((double) (end - start)) / CLOCKS_PER_SEC); // seconds per frame
-    unsigned int delay = ((1.0 / opts->fps) - cpu_time) * 1000; // ms
+    double cpu_time;
+    unsigned int delay;
 
     for (int i = 0; i < opts->frame_count; i++) {
+        start = clock();
         system("clear");
-        printf("%s\n", *(frame_buffer + i));
+        write(1, *(frame_buffer + i), strlen(*(frame_buffer + i)));
+        end = clock();
+
+        cpu_time = (((double) (end - start)) / CLOCKS_PER_SEC);
+        delay = ((1.0 / opts->fps) - cpu_time) * 1000;
 
         usleep(delay * 1000); // µs
     }

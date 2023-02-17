@@ -6,6 +6,8 @@ OUT=bad-apple-c
 INPUT=input.mp4 8
 
 all:
+	rm -rf build 
+	mkdir build
 	$(COMPILER) $(CFLAGS) $(CFILES) -o ./build/$(OUT)
 
 debug:
@@ -17,5 +19,6 @@ run:
 
 clean:
 	rm -rf ./frames
-	rm ./build/$(OUT)
+	rm -rf build 
+	mkdir build
 	clear
